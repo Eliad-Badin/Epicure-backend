@@ -1,5 +1,7 @@
 import { Schema, model, Types, Document } from "mongoose";
 
+export type MealType = "breakfast" | "lunch" | "dinner";
+
 export interface DishInterface extends Document {
     name: string;
     price: number;

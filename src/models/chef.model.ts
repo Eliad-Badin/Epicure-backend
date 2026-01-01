@@ -7,6 +7,20 @@ export interface ChefInterface extends Document {
     restaurants: Types.ObjectId[];
 }
 
+export interface CreateChefInput {
+    name: string;
+    image: string;
+    description: string;
+    restaurants: string[];
+}
+
+export interface UpdateChefInput {
+    name?: string | undefined;
+    image?: string | undefined;
+    description?: string | undefined;
+    restaurants?: string[] | undefined;
+}
+
 const chefSchema = new Schema<ChefInterface> ({
     name: {type: String, required: true, trim: true},
     image: {type: String, required: true},
