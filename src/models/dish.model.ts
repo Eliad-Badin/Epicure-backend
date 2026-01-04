@@ -1,13 +1,14 @@
 import { Schema, model, Types, Document } from "mongoose";
 
-export type MealType = "breakfast" | "lunch" | "dinner";
+export type MealType = "breakfast" | "lunch" | "dinner" | "all";
 
 export interface DishInterface extends Document {
     name: string;
     price: number;
     ingredients: string[];
     tags: string[];
-    restaurant: Types.ObjectId;
+    restaurantId: Types.ObjectId;
+    mealType: MealType
 }
 
 const dishSchema = new Schema<DishInterface> (
@@ -22,11 +23,16 @@ const dishSchema = new Schema<DishInterface> (
             type: [String],
             default: []
         },
-        restaurant: {
+        restaurantId: {
             type: Schema.Types.ObjectId,
             ref: "Restaurant",
             required: true
-        }
+        },
+        mealType: {
+            type: String,
+            enum: ["breakfast", "lunch", "dinner", "all"],
+            default: "all",
+        },
     },
     { timestamps: true }
 );

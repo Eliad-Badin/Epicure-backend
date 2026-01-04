@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { Dish, type DishInterface } from "../models/dish.model";
 import type { CreateDishInput, UpdateDishInput } from "../utils/validations/dish.validation";
+import Restaurant from "../models/restaurant.model";
 
 const INVALID_ID = "Invalid dish id";
 const NOT_FOUND = "Dish not found";
@@ -13,7 +14,11 @@ export const createDish = async (
 
   const dish = await Dish.create({
     ...rest,
-    restaurant: restaurantObjectId,
+    restaurantId: restaurantObjectId,
+  });
+
+  await Restaurant.findByIdAndUpdate(restaurantObjectId, {
+    $addToSet: {dishes: dish._id},
   });
 
   return dish;
@@ -65,13 +70,30 @@ export const updateDish = async (
   return dish;
 };
 
-export const deleteDish = async (id: string): Promise<void> => {
+
+export const deleteDish = async (id: string): Promise<boolean> => {
   if (!Types.ObjectId.isValid(id)) {
     throw new Error(INVALID_ID);
   }
 
-  const deleted = await Dish.findByIdAndDelete(id);
-  if (!deleted) {
-    throw new Error(NOT_FOUND);
+  const dish = await Dish.findById(id);
+  if (!dish) {
+    return false;
   }
+
+  const dishId = dish._id;
+  const restaurantRef =
+    (dish as any).restaurantId || (dish as any).restaurantID;
+
+  await Dish.deleteOne({ _id: dishId });
+
+  if (restaurantRef) {
+    await Restaurant.updateOne(
+      { _id: restaurantRef },
+      { $pull: { dishes: dishId } }
+    );
+  }
+
+  return true;
 };
+

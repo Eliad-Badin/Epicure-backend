@@ -1,5 +1,7 @@
 import { Types } from "mongoose";
 import { Restaurant, type RestaurantInterface } from "../models/restaurant.model";
+import { Chef } from "../models/chef.model";
+import { Dish } from "../models/dish.model";
 import type {
   CreateRestaurantInput,
   UpdateRestaurantInput,
@@ -11,16 +13,22 @@ import { INVALID_ID, NOT_FOUND } from "../constants/strings";
 export const createRestaurant = async (
   data: CreateRestaurantInput
 ): Promise<RestaurantInterface> => {
-  const payload: Partial<RestaurantInterface> = {
-    name: data.name,
-    image: data.image,
-    chef: new Types.ObjectId(data.chef),
-    ...(data.dishes && {
-      dishes: data.dishes.map((id) => new Types.ObjectId(id)),
-    }),
-  };
+    const chefObjectId = new Types.ObjectId(data.chef);
+    const payload: Partial<RestaurantInterface> = {
+        name: data.name,
+        image: data.image,
+        chef: chefObjectId,
+        ...(data.dishes && {
+        dishes: data.dishes.map((id) => new Types.ObjectId(id)),
+        }),
+    };
 
   const restaurant = await Restaurant.create(payload);
+
+  await Chef.findByIdAndUpdate(chefObjectId, {
+    $addToSet: { restaurants: restaurant._id},
+  });
+
   return restaurant;
 };
 
@@ -63,15 +71,33 @@ export const updateRestaurant = async (
   return restaurant;
 };
 
-export const deleteRestaurant = async (id: string): Promise<void> => {
+export const deleteRestaurant = async (id: string): Promise<boolean> => {
   if (!Types.ObjectId.isValid(id)) {
     throw new Error(INVALID_ID);
   }
 
-  const restaurant = await Restaurant.findByIdAndDelete(id);
-
+  const restaurant = await Restaurant.findById(id);
   if (!restaurant) {
-    throw new Error(NOT_FOUND);
+    return false;
   }
+
+  const restaurantId = restaurant._id;
+  const chefRef = restaurant.chef;
+  const dishIds = restaurant.dishes ?? [];
+
+  await Restaurant.deleteOne({ _id: restaurantId });
+
+  if (chefRef) {
+    await Chef.updateOne(
+      { _id: chefRef },
+      { $pull: { restaurants: restaurantId } }
+    );
+  }
+
+  if (dishIds.length > 0) {
+    await Dish.deleteMany({ _id: { $in: dishIds } });
+  }
+
+  return true;
 };
 

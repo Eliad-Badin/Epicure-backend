@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { MealType } from "../../models/dish.model";
 
-export const mealTypeEnum = z.enum(["breakfast", "lunch", "dinner"]);
+export const mealTypeEnum = z.enum(["breakfast", "lunch", "dinner", "all"]);
 
 export const createDishSchema = z.object({
   name: z.string().min(1, "Name is required"),

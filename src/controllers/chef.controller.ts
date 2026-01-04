@@ -45,7 +45,7 @@ export const getChefsController = async (
 ) => {
     try {
         const chefs = await getAllChefs();
-        res.json(chefs);
+        res.status(200).json(chefs);
     } catch (err) {
         next(err);
     }
@@ -63,7 +63,7 @@ export const getChefByIdController = async (
         if (!chef)
             return res.status(400).json({ message: "Chef not found" });
 
-        res.json(chef);
+        res.status(200).json(chef);
     } catch (err) {
         if (err instanceof z.ZodError) {
             return res.status(400).json({

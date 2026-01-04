@@ -33,7 +33,7 @@ export const getDishesController = async (
 ) => {
   try {
     const dishes = await getDishes();
-    res.json(dishes);
+    res.status(200).json(dishes);
   } catch (err) {
     next(err);
   }
@@ -47,7 +47,7 @@ export const getDishByIdController = async (
   try {
     const params = dishIdParamSchema.parse(req.params);
     const dish = await getDishById(params.id);
-    res.json(dish);
+    res.status(200).json(dish);
   } catch (err) {
     next(err);
   }
@@ -63,7 +63,7 @@ export const updateDishController = async (
     const body = updateDishSchema.parse(req.body);
 
     const dish = await updateDish(params.id, body);
-    res.json(dish);
+    res.status(200).json(dish);
   } catch (err) {
     next(err);
   }

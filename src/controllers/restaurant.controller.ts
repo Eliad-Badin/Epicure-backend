@@ -103,18 +103,14 @@ export const deleteRestaurantController = async (
 ) => {
   try {
     const params = restaurantIdParamSchema.parse(req.params);
-    await deleteRestaurant(params.id);
+
+    const deleted = await deleteRestaurant(params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: NOT_FOUND });
+    }
+
     return res.status(204).send();
   } catch (err) {
-    if (err instanceof z.ZodError) {
-      return res.status(400).json({ errors: err.issues });
-    }
-    if (err instanceof Error && err.message === INVALID_ID) {
-      return res.status(400).json({ error: "Invalid restaurant id" });
-    }
-    if (err instanceof Error && err.message === NOT_FOUND) {
-      return res.status(404).json({ error: "Restaurant not found" });
-    }
-    return next(err);
+    next(err);
   }
 };
