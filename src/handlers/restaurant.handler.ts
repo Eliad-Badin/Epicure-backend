@@ -33,7 +33,7 @@ export const createRestaurant = async (
 };
 
 export const getRestaurants = async (): Promise<RestaurantInterface[]> => {
-  return Restaurant.find().lean();
+  return Restaurant.find().populate("chef", "name").lean();
 };
 
 export const getRestaurantById = async (
@@ -43,7 +43,7 @@ export const getRestaurantById = async (
     throw new Error(INVALID_ID);
   }
 
-  const restaurant = await Restaurant.findById(id).lean();
+  const restaurant = await Restaurant.findById(id).populate("chef", "name").populate(({path: "dishes"})).lean();
   if (!restaurant) {
     throw new Error(NOT_FOUND);
   }

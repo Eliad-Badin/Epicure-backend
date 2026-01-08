@@ -8,13 +8,15 @@ export interface DishInterface extends Document {
     ingredients: string[];
     tags: string[];
     restaurantId: Types.ObjectId;
-    mealType: MealType
+    mealType: MealType;
+    image: string;
 }
 
 const dishSchema = new Schema<DishInterface> (
     {
         name: {type: String, required: true, trim: true},
         price: {type: Number, required: true, min: 0},
+        image: {type: String, required: true, trim: true},
         ingredients: {
             type: [String],
             default: []

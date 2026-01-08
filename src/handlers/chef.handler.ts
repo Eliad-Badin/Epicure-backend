@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { Chef, CreateChefInput, UpdateChefInput } from "../models/chef.model";
 import { INVALID_ID, NOT_FOUND } from "../constants/strings";
+import { json } from "zod";
 
 export const getAllChefs = async () => {
     return Chef.find().lean();
@@ -15,6 +16,35 @@ export const getChefById = async (id: string) => {
         throw new Error(NOT_FOUND);
 
     return chef;
+};
+
+export const getChefOfTheWeek = async () => {
+  const chefId = process.env.CHEF_OF_WEEK_ID;
+
+  console.log('Chef of the week id raw:', JSON.stringify(chefId));
+
+  if (!chefId) {
+    throw new Error(INVALID_ID);
+  }
+
+  if (!Types.ObjectId.isValid(chefId)) {
+    console.log("isValid check FAILED for:", chefId);
+    throw new Error(INVALID_ID);
+  }
+
+  const chef = await Chef.findById(chefId)
+    .populate({
+      path: "restaurants",
+      select: "name image chef",
+      populate: { path: "chef", select: "name" },
+    })
+    .lean();
+
+  if (!chef) {
+    throw new Error(NOT_FOUND);
+  }
+
+  return chef;
 };
 
 export const createChef = async (data: CreateChefInput) => {

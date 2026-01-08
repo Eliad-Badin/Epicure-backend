@@ -6,6 +6,7 @@ import {
     createChef,
     updateChef,
     deleteChef,
+    getChefOfTheWeek,
 } from "../handlers/chef.handler";
 import {
     createChefSchema,
@@ -75,6 +76,19 @@ export const getChefByIdController = async (
   }
 
     next(err);
+    }
+}
+
+export const getChefOfTheWeekController = async (
+    _req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const chef = await getChefOfTheWeek();
+        res.json(chef);
+    } catch (err) {
+        return next(err);
     }
 }
 
