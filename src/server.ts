@@ -1,24 +1,23 @@
-import "dotenv/config";
-import express from "express";
-import { connectDB } from "./utills/config/db.config";
-import { Chef } from "./models/Chef.model";
+import dotenv from "dotenv";
+dotenv.config();
 
-const app = express();
-app.use(express.json());
+import app from "./app";
+import { connectDB } from "./utils/config/db.config";
 
 const PORT = process.env.PORT;
 
-app.get("/health", (_req, res) =>{
-    res.json({status: "ok"});
-});
 
-app.get("/chefs-test", async(_req, res) => {
-    const chefs = await Chef.find().limit(5);
-    res.json(chefs);
-});
+const startServer = async () => {
+  try {
+    await connectDB();
 
-connectDB().then(() => {
     app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
+      console.log(`Server is running on port ${PORT}`);
     });
-});
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
