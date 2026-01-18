@@ -6,13 +6,14 @@ import {
   updateRestaurantController,
   deleteRestaurantController,
 } from "../controllers/restaurant.controller";
+import { requireAuth, requireAdmin } from "../middleware/auth.middleware";
 
 const router = Router();
 
-router.post("/restaurants", createRestaurantController);
 router.get("/restaurants", getRestaurantsController);
 router.get("/restaurants/:id", getRestaurantByIdController);
-router.patch("/restaurants/:id", updateRestaurantController);
-router.delete("/restaurants/:id", deleteRestaurantController);
+router.post("/restaurants", requireAuth, requireAdmin, createRestaurantController);
+router.patch("/restaurants/:id", requireAuth, requireAdmin, updateRestaurantController);
+router.delete("/restaurants/:id", requireAuth, requireAdmin, deleteRestaurantController);
 
 export default router;

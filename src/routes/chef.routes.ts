@@ -7,15 +7,16 @@ import {
   deleteChefController,
   getChefOfTheWeekController,
 } from "../controllers/chef.controller";
+import { requireAuth, requireAdmin } from "../middleware/auth.middleware";
 
 const router = Router();
 
-router.post("/chefs", createChefController);
 router.get("/chefs", getChefsController);
 router.get("/chefs/chef-of-the-week", getChefOfTheWeekController);
 router.get("/chefs/:id", getChefByIdController);
-router.patch("/chefs/:id", updateChefController);
-router.delete("/chefs/:id", deleteChefController);
+router.post("/chefs", requireAuth, requireAdmin, createChefController);
+router.patch("/chefs/:id", requireAuth, requireAdmin, updateChefController);
+router.delete("/chefs/:id", requireAuth, requireAdmin, deleteChefController);
 
 
 export default router;

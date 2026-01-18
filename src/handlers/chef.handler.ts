@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { Chef, CreateChefInput, UpdateChefInput } from "../models/chef.model";
 import { INVALID_ID, NOT_FOUND } from "../constants/strings";
 import { json } from "zod";
@@ -19,26 +19,7 @@ export const getChefById = async (id: string) => {
 };
 
 export const getChefOfTheWeek = async () => {
-  const chefId = process.env.CHEF_OF_WEEK_ID;
-
-  console.log('Chef of the week id raw:', JSON.stringify(chefId));
-
-  if (!chefId) {
-    throw new Error(INVALID_ID);
-  }
-
-  if (!Types.ObjectId.isValid(chefId)) {
-    console.log("isValid check FAILED for:", chefId);
-    throw new Error(INVALID_ID);
-  }
-
-  const chef = await Chef.findById(chefId)
-    .populate({
-      path: "restaurants",
-      select: "name image chef",
-      populate: { path: "chef", select: "name" },
-    })
-    .lean();
+  const chef = await Chef.findOne({ isChefOfTheWeek: true }).populate("restaurants");
 
   if (!chef) {
     throw new Error(NOT_FOUND);
@@ -77,3 +58,24 @@ export const deleteChef = async (id: string) => {
     const result = await Chef.findByIdAndDelete(id);
     return result;
 };
+
+export async function setChefOfTheWeek(chefId: string) {
+    if (!mongoose.isValidObjectId(chefId)) {
+        throw new Error(INVALID_ID);
+    }
+
+    const chef = await Chef.findById(chefId);
+    if (!chef) {
+        throw new Error(NOT_FOUND);
+    }
+
+    await Chef.updateMany(
+        { isChefOfTheWeek: true },
+        { $set: { isChefOfTheWeek: false } }
+    );
+
+    chef.isChefOfTheWeek = true;
+    await chef.save();
+    
+    return chef;
+}

@@ -6,7 +6,8 @@ import {
     createChef,
     updateChef,
     deleteChef,
-    getChefOfTheWeek,
+    getChefOfTheWeek, 
+    setChefOfTheWeek
 } from "../handlers/chef.handler";
 import {
     createChefSchema,
@@ -79,18 +80,33 @@ export const getChefByIdController = async (
     }
 }
 
-export const getChefOfTheWeekController = async (
+export async function getChefOfTheWeekController(
     _req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+    res: Response) {
     try {
         const chef = await getChefOfTheWeek();
-        res.json(chef);
-    } catch (err) {
-        return next(err);
+        res.status(200).json(chef);
+    } catch (err: any) {
+        res.status(404).json({ message: err.message });
     }
 }
+
+export async function setChefOfTheWeekController(req: Request<{chefId: string}>, res: Response) {
+    try {
+        const chefId  = req.params.chefId;
+
+        if(!chefId) {
+            return res.status(400).json({ message: "Chef ID is required" });
+        }
+
+        const chef = await setChefOfTheWeek(chefId);
+
+        res.status(200).json(chef);
+
+    } catch (err: any) {
+        res.status(404).json({ message: err.message || "Failed to set Chef of the Week" });
+    }
+};
 
 export const updateChefController = async (
   req: Request,

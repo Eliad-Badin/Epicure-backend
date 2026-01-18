@@ -5,6 +5,7 @@ export interface ChefInterface extends Document {
     image: string;
     description: string;
     restaurants: Types.ObjectId[];
+    isChefOfTheWeek?: boolean;
 }
 
 export interface CreateChefInput {
@@ -19,6 +20,7 @@ export interface UpdateChefInput {
     image?: string | undefined;
     description?: string | undefined;
     restaurants?: string[] | undefined;
+    isChefOfTheWeek?: boolean | undefined;
 }
 
 const chefSchema = new Schema<ChefInterface> ({
@@ -30,7 +32,8 @@ const chefSchema = new Schema<ChefInterface> ({
             type: Schema.Types.ObjectId,
             ref: "Restaurant"
         }
-    ]
+    ],
+    isChefOfTheWeek: { type: Boolean, default: false }
 },
 { timestamps: true }
 );
